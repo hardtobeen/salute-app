@@ -1,0 +1,6 @@
+{
+  "name": "Fitness & Progressive Overload Tracker",
+  "description": "App fitness minimale e tracker offline di sovraccarico progressivo, nutrizione e Apple Health con engine di calcolo deterministico.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
