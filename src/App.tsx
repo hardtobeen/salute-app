@@ -28,20 +28,20 @@ import { playAppleSound } from './utils/calculations';
 
 const TODAY_DATE = new Date().toISOString().split('T')[0];
 
-// Clean storage keys - versioned to purge any deprecated mock data from previous sessions
+// Clean storage keys - versioned to purge any deprecated mock or old baseline data
 const STORAGE_KEYS = {
-  PROFILE: 'clean_tracker_profile_v3',
-  MEASUREMENTS: 'clean_tracker_measurements_v3',
-  MEALS: 'clean_tracker_meals_v3',
-  DIARY: 'clean_tracker_diary_v3',
-  WORKOUTS: 'clean_tracker_workouts_v3',
-  HEALTH: 'clean_tracker_health_v3',
-  TWELVE_WEEKS: 'clean_tracker_twelve_weeks_v3',
-  CREATINE: 'clean_tracker_creatine_v3',
-  WATER: 'clean_tracker_water_v3',
+  PROFILE: 'clean_tracker_profile_v5',
+  MEASUREMENTS: 'clean_tracker_measurements_v5',
+  MEALS: 'clean_tracker_meals_v5',
+  DIARY: 'clean_tracker_diary_v5',
+  WORKOUTS: 'clean_tracker_workouts_v5',
+  HEALTH: 'clean_tracker_health_v5',
+  TWELVE_WEEKS: 'clean_tracker_twelve_weeks_v5',
+  CREATINE: 'clean_tracker_creatine_v5',
+  WATER: 'clean_tracker_water_v5',
 };
 
-// Purge old mock keys if present in browser
+// Purge old mock keys and previous 110kg version keys if present in browser
 if (typeof window !== 'undefined') {
   try {
     [
@@ -54,15 +54,19 @@ if (typeof window !== 'undefined') {
       'aurafit_12week_logs',
       'aurafit_creatine',
       'aurafit_water',
+      'clean_tracker_profile_v3',
+      'clean_tracker_measurements_v3',
+      'clean_tracker_profile_v4',
+      'clean_tracker_measurements_v4',
     ].forEach((k) => localStorage.removeItem(k));
   } catch {
     // ignore
   }
 }
 
-// Initial Data starting from Week 1 (110 kg baseline from PDF, 0 fake progress)
+// Initial Data starting from Week 1 (120 kg baseline as weighed today, 0 fake progress)
 const INITIAL_MEASUREMENTS: MeasurementEntry[] = [
-  { id: 'm-baseline', date: TODAY_DATE, weightKg: 110.0, waistCm: 106.0, notes: 'Punto di partenza iniziale (da PDF)' },
+  { id: 'm-baseline', date: TODAY_DATE, weightKg: 120.0, waistCm: 110.0, notes: 'Punto di partenza iniziale pesato oggi (120 kg)' },
 ];
 
 const INITIAL_MEALS: MealEntry[] = [];
@@ -92,8 +96,8 @@ export default function App() {
       const stored = localStorage.getItem(STORAGE_KEYS.PROFILE);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Guarantee no stale 108.5kg
-        if (parsed.currentWeightKg === 108.5) {
+        // Guarantee no stale 108.5kg or old 110kg baseline
+        if (parsed.currentWeightKg === 108.5 || parsed.initialWeightKg === 110.0 || parsed.currentWeightKg === 110.0) {
           return DEFAULT_USER_PROFILE;
         }
         return parsed;
@@ -109,8 +113,8 @@ export default function App() {
       const stored = localStorage.getItem(STORAGE_KEYS.MEASUREMENTS);
       if (stored) {
         const parsed: MeasurementEntry[] = JSON.parse(stored);
-        // If parsed contains fake 108.5, reset to baseline
-        if (parsed.some((m) => m.weightKg === 108.5)) {
+        // If parsed contains fake 108.5 or old 110 baseline, reset to 120kg
+        if (parsed.some((m) => m.weightKg === 108.5 || m.weightKg === 110.0)) {
           return INITIAL_MEASUREMENTS;
         }
         return parsed.length > 0 ? parsed : INITIAL_MEASUREMENTS;
@@ -239,7 +243,7 @@ export default function App() {
   }, [waterLiters]);
 
   // Master Reset Handler: sets initial baseline and clears all logs to 0
-  const handleResetAllData = (startWeight: number = 110.0, startWaist: number = 106.0) => {
+  const handleResetAllData = (startWeight: number = 120.0, startWaist: number = 110.0) => {
     playAppleSound('tap');
     const cleanProfile: UserProfile = {
       ...DEFAULT_USER_PROFILE,
@@ -249,7 +253,7 @@ export default function App() {
       currentWaistCm: startWaist,
     };
     const cleanMeas: MeasurementEntry[] = [
-      { id: 'm-baseline', date: TODAY_DATE, weightKg: startWeight, waistCm: startWaist, notes: 'Punto di partenza iniziale' },
+      { id: 'm-baseline', date: TODAY_DATE, weightKg: startWeight, waistCm: startWaist, notes: 'Punto di partenza iniziale pesato (120 kg)' },
     ];
     setProfile(cleanProfile);
     setMeasurements(cleanMeas);

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, RotateCcw, X, Bell, Plus, Minus } from 'lucide-react';
 import { formatTimeMMSS, playAppleSound } from '../utils/calculations';
+import { triggerHaptic } from '../utils/haptics';
 
 interface RestTimerModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function RestTimerModal({ isOpen, onClose, defaultSeconds = 90 }: RestTim
       interval = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
+            triggerHaptic('success');
             playAppleSound('complete');
             setIsRunning(false);
             return 0;
@@ -45,6 +47,7 @@ export function RestTimerModal({ isOpen, onClose, defaultSeconds = 90 }: RestTim
   const strokeDashoffset = circumference - progress * circumference;
 
   const handlePreset = (sec: number) => {
+    triggerHaptic('selection');
     playAppleSound('tap');
     setTotalSeconds(sec);
     setTimeLeft(sec);
@@ -52,6 +55,7 @@ export function RestTimerModal({ isOpen, onClose, defaultSeconds = 90 }: RestTim
   };
 
   const adjustTime = (delta: number) => {
+    triggerHaptic('step');
     playAppleSound('tap');
     const newTime = Math.max(10, timeLeft + delta);
     setTimeLeft(newTime);
@@ -61,6 +65,7 @@ export function RestTimerModal({ isOpen, onClose, defaultSeconds = 90 }: RestTim
   };
 
   const toggleRun = () => {
+    triggerHaptic('light');
     playAppleSound('tap');
     if (timeLeft === 0) {
       setTimeLeft(totalSeconds);
@@ -71,6 +76,7 @@ export function RestTimerModal({ isOpen, onClose, defaultSeconds = 90 }: RestTim
   };
 
   const resetTimer = () => {
+    triggerHaptic('medium');
     playAppleSound('tap');
     setIsRunning(false);
     setTimeLeft(totalSeconds);

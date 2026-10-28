@@ -213,8 +213,8 @@ export function ProgressView({
                 <button
                   type="button"
                   onClick={() => {
-                    const w = parseFloat(calibWeight) || 110.0;
-                    const wst = parseFloat(calibWaist) || 106.0;
+                    const w = parseFloat(calibWeight) || 120.0;
+                    const wst = parseFloat(calibWaist) || 110.0;
                     if (onResetAllData) {
                       onResetAllData(w, wst);
                     }
@@ -246,7 +246,7 @@ export function ProgressView({
             <input
               type="number"
               step="0.1"
-              placeholder="es. 109.8"
+              placeholder="es. 119.5"
               value={newWeight}
               onChange={(e) => setNewWeight(e.target.value)}
               className="w-full h-9 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-rose-500"
@@ -260,7 +260,7 @@ export function ProgressView({
             <input
               type="number"
               step="0.5"
-              placeholder="es. 106.0"
+              placeholder="es. 110.0"
               value={newWaist}
               onChange={(e) => setNewWaist(e.target.value)}
               className="w-full h-9 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-rose-500"

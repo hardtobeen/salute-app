@@ -35,7 +35,7 @@ export function GuideView() {
       content: (
         <div className="space-y-3 text-xs text-neutral-300 leading-relaxed">
           <p>
-            L'obiettivo è dimagrire costruendo solida massa muscolare. Con esperienza pregressa e ritorno al sovrappeso (193 cm / ~110 kg), il corpo risponde in modo eccellente alla ripresa del lavoro.
+            L'obiettivo è dimagrire costruendo solida massa muscolare. Con esperienza pregressa e ritorno al sovrappeso (193 cm / 120 kg), il corpo risponde in modo eccellente alla ripresa del lavoro.
           </p>
           <div className="space-y-2 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
             <h5 className="font-bold text-white text-xs">Le Regole Fondamentali:</h5>

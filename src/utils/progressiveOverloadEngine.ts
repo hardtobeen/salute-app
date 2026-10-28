@@ -24,7 +24,7 @@ export function calculateAdaptiveRecommendation(
   exercise: Exercise,
   lastPerfString: string | null,
   currentWeightKg: number,
-  initialWeightKg: number = 110.0,
+  initialWeightKg: number = 120.0,
   recentDiaryEntry?: DiaryEntry | null
 ): ProgressionRecommendation {
   const baseSets = exercise.sets;

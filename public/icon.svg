@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="70%" fx="50%" fy="30%">
+      <stop offset="0%" stop-color="#141724" />
+      <stop offset="60%" stop-color="#0A0B10" />
+      <stop offset="100%" stop-color="#050608" />
+    </radialGradient>
+
+    <!-- Neon Crimson Gradient -->
+    <linearGradient id="neon-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF4B72" />
+      <stop offset="50%" stop-color="#FF1744" />
+      <stop offset="100%" stop-color="#D50032" />
+    </linearGradient>
+
+    <!-- Cyan Rim Glow -->
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF" />
+      <stop offset="100%" stop-color="#00B4D8" />
+    </linearGradient>
+
+    <!-- Metallic Titanium Gradient -->
+    <linearGradient id="titanium" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0" />
+      <stop offset="35%" stop-color="#94A3B8" />
+      <stop offset="70%" stop-color="#475569" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="laser-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="22" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" fill="url(#bg-grad)" />
+
+  <!-- Ambient Core Glow -->
+  <circle cx="256" cy="256" r="140" fill="#FF1744" opacity="0.16" filter="url(#soft-glow)" />
+  <circle cx="256" cy="220" r="90" fill="#00F0FF" opacity="0.14" filter="url(#soft-glow)" />
+
+  <!-- Overload Apex Crest Group -->
+  <g filter="url(#laser-glow)">
+    <!-- Top Chevron Outer Rim (Cyan Neon) -->
+    <path d="M256 128 L390 296 L340 300 L256 195 L172 300 L122 296 Z" 
+          fill="none" stroke="url(#cyan-glow)" stroke-width="4.5" stroke-linejoin="round" opacity="0.95" />
+
+    <!-- Top Chevron Core (Metallic & Neon Crimson) -->
+    <path d="M256 142 L372 288 L344 290 L256 182 L168 290 L140 288 Z" 
+          fill="url(#neon-rose)" />
+
+    <!-- Top Chevron Center Ridge (Polished Titanium Highlight) -->
+    <path d="M256 142 L256 182" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9" />
+
+    <!-- Bottom Chevron Outer Rim (Cyan Laser Accent) -->
+    <path d="M256 226 L394 394 L344 398 L256 293 L168 398 L118 394 Z" 
+          fill="none" stroke="url(#cyan-glow)" stroke-width="4.5" stroke-linejoin="round" opacity="0.95" />
+
+    <!-- Bottom Chevron Core (Deep Crimson Power) -->
+    <path d="M256 240 L376 386 L348 388 L256 280 L164 388 L136 386 Z" 
+          fill="url(#neon-rose)" />
+
+    <!-- Bottom Chevron Center Ridge -->
+    <path d="M256 240 L256 280" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9" />
+  </g>
+
+  <!-- Top Apex Highlight Sparkle -->
+  <circle cx="256" cy="138" r="4.5" fill="#FFFFFF" opacity="0.95" />
+</svg>

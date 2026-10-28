@@ -3,14 +3,14 @@ import { WorkoutSession, FoodItem, UserProfile } from '../types/fitness';
 export const DEFAULT_USER_PROFILE: UserProfile = {
   name: '',
   heightCm: 193,
-  initialWeightKg: 110.0,
-  currentWeightKg: 110.0,
-  targetWeightKg: 95.0,
-  initialWaistCm: 106.0,
-  currentWaistCm: 106.0,
+  initialWeightKg: 120.0,
+  currentWeightKg: 120.0,
+  targetWeightKg: 100.0,
+  initialWaistCm: 110.0,
+  currentWaistCm: 110.0,
   activityLevel: 'moderato',
-  dailyProteinTargetGrams: 175, // Inside 160-190 g from the PDF
-  dailyCalorieTarget: 2450, // Moderate deficit ~400 kcal
+  dailyProteinTargetGrams: 180, // Target proteico ottimale per 120 kg (160-190g)
+  dailyCalorieTarget: 2600, // Deficit controllato su TDEE ~3400 kcal
   availableEquipment: [
     'Panca regolabile',
     '2 Manubri da 10 kg',
@@ -18,7 +18,7 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
     'Elastico 10 kg',
     'Elastico 30 kg'
   ],
-  historyNotes: 'Scoliosi pregressa riferita (nessun dolore attuale). Test iniziale: 10 curl con 10 kg a due braccia insieme.'
+  historyNotes: 'Scoliosi pregressa riferita (nessun dolore attuale). Peso registrato: 120 kg. Test iniziale: 10 curl con 10 kg a due braccia insieme.'
 };
 
 export const WORKOUT_SESSIONS: WorkoutSession[] = [

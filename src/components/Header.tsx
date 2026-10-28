@@ -24,24 +24,23 @@ export function Header({
     <header className="sticky top-0 z-40 w-full apple-liquid-glass border-b border-white/[0.08] px-4 py-2.5 select-none">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
         {/* Minimalist HUD - No logos, no branding */}
-        <div className="flex items-center gap-2.5">
-          <div className="px-3 py-1 rounded-xl bg-white/[0.05] border border-white/10 flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <div className="px-2.5 py-1 rounded-xl bg-white/[0.05] border border-white/10 flex items-center gap-1.5">
             <span className="text-xs font-bold text-white tracking-tight">
-              Settimana {activeWeek}
+              S{activeWeek}
             </span>
-            <span className="text-[10px] text-neutral-400 font-mono">/ 12</span>
+            <span className="text-[10px] text-neutral-400 font-mono">/12</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-300 font-mono">
-            <span>{profile.heightCm}cm</span>
-            <span className="text-neutral-600">•</span>
-            <span>{profile.currentWeightKg}kg</span>
+          <div className="px-2.5 py-1 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-1.5 text-xs font-mono">
+            <span className="text-rose-400 font-bold">{profile.currentWeightKg} kg</span>
+            <span className="text-neutral-500 hidden sm:inline">• {profile.heightCm}cm</span>
             {Math.abs(parseFloat(deltaKg)) > 0.05 ? (
-              <span className={`text-[11px] font-semibold ${parseFloat(deltaKg) < 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <span className={`text-[10px] font-semibold ${parseFloat(deltaKg) < 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 ({parseFloat(deltaKg) < 0 ? `${deltaKg}kg` : `+${deltaKg}kg`})
               </span>
             ) : (
-              <span className="text-[11px] font-semibold text-neutral-400">
+              <span className="text-[10px] text-neutral-400">
                 (Inizio)
               </span>
             )}

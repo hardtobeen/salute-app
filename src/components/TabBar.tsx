@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Dumbbell, Utensils, TrendingUp, Heart, BookOpen, Activity } from 'lucide-react';
 import { playAppleSound } from '../utils/calculations';
+import { triggerHaptic } from '../utils/haptics';
 
 export type TabKey = 'workout' | 'nutrition' | 'progress' | 'diary' | 'health' | 'guide';
 
@@ -34,6 +35,7 @@ export function TabBar({ activeTab, onChangeTab }: TabBarProps) {
               key={tab.key}
               whileTap={{ scale: 0.88 }}
               onClick={() => {
+                triggerHaptic('selection');
                 playAppleSound('tap');
                 onChangeTab(tab.key);
               }}

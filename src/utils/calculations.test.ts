@@ -9,10 +9,10 @@ import {
 } from './calculations';
 import { DEFAULT_USER_PROFILE } from '../data/workoutProgram';
 
-test('calculateBMR returns accurate calories for 193cm 110kg male', () => {
-  // BMR = (10 * 110) + (6.25 * 193) - (5 * 28) + 5 = 1100 + 1206.25 - 140 + 5 = 2171.25 -> ~2171
-  const bmr = calculateBMR(110, 193, 28, true);
-  assert.ok(bmr > 2100 && bmr < 2250, `BMR was ${bmr}`);
+test('calculateBMR returns accurate calories for 193cm 120kg male', () => {
+  // BMR = (10 * 120) + (6.25 * 193) - (5 * 28) + 5 = 1200 + 1206.25 - 140 + 5 = 2271.25 -> ~2271
+  const bmr = calculateBMR(120, 193, 28, true);
+  assert.ok(bmr > 2200 && bmr < 2350, `BMR was ${bmr}`);
 });
 
 test('calculateTDEE applies activity multiplier correctly', () => {
@@ -25,17 +25,17 @@ test('calculateTDEE applies activity multiplier correctly', () => {
 });
 
 test('calculateMacros preserves protein within 160-190g window', () => {
-  const macros = calculateMacros(110, 193, 'moderato', 175);
-  assert.equal(macros.proteinGrams, 175);
-  assert.ok(macros.targetCalories >= 2000, 'Target calories should be safe and sustainable');
-  assert.ok(macros.fatGrams > 45, 'Fats should provide essential fatty acids');
+  const macros = calculateMacros(120, 193, 'moderato', 180);
+  assert.equal(macros.proteinGrams, 180);
+  assert.ok(macros.targetCalories >= 2400, 'Target calories should be safe and sustainable');
+  assert.ok(macros.fatGrams > 50, 'Fats should provide essential fatty acids');
   assert.ok(macros.carbsGrams > 150, 'Carbohydrates must support 6 training days');
 
   // Test clamping
-  const macrosLow = calculateMacros(110, 193, 'moderato', 120);
+  const macrosLow = calculateMacros(120, 193, 'moderato', 120);
   assert.equal(macrosLow.proteinGrams, 160);
 
-  const macrosHigh = calculateMacros(110, 193, 'moderato', 250);
+  const macrosHigh = calculateMacros(120, 193, 'moderato', 250);
   assert.equal(macrosHigh.proteinGrams, 190);
 });
 

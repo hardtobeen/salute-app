@@ -11,6 +11,8 @@ import {
   Moon,
   ChevronRight,
   Plus,
+  Minus,
+  Trash2,
   Dumbbell,
   Footprints,
   Activity,
@@ -24,6 +26,7 @@ import { WORKOUT_SESSIONS } from '../data/workoutProgram';
 import { ExerciseDetailModal } from './ExerciseDetailModal';
 import { RestTimerModal } from './RestTimerModal';
 import { playAppleSound } from '../utils/calculations';
+import { triggerHaptic } from '../utils/haptics';
 import { calculateAdaptiveRecommendation } from '../utils/progressiveOverloadEngine';
 import { EngineLogicInspector } from './EngineLogicInspector';
 
@@ -118,6 +121,7 @@ export function WorkoutView({
 
   // Switch session tab
   const handleSelectSession = (sessionId: string) => {
+    triggerHaptic('selection');
     playAppleSound('tap');
     setSelectedSessionId(sessionId);
     const newSession = WORKOUT_SESSIONS.find((s) => s.id === sessionId) || WORKOUT_SESSIONS[0];
@@ -126,20 +130,27 @@ export function WorkoutView({
   };
 
   const startLiveWorkout = () => {
+    triggerHaptic('heavy');
     playAppleSound('tap');
     setIsLiveWorkout(true);
     setWorkoutStartTime(Date.now());
   };
 
   const toggleSetComplete = (exerciseId: string, setIndex: number, restSeconds: number) => {
-    playAppleSound('ding');
     setLiveSets((prev) => {
       const exSets = [...(prev[exerciseId] || [])];
       if (exSets[setIndex]) {
         const wasCompleted = exSets[setIndex].completed;
+        const nextState = !wasCompleted;
+        if (nextState) {
+          triggerHaptic('success');
+          playAppleSound('ding');
+        } else {
+          triggerHaptic('light');
+        }
         exSets[setIndex] = {
           ...exSets[setIndex],
-          completed: !wasCompleted,
+          completed: nextState,
         };
         // Auto open rest timer if newly completed
         if (!wasCompleted) {
@@ -164,7 +175,34 @@ export function WorkoutView({
     });
   };
 
+  const stepWeight = (exerciseId: string, setIndex: number, delta: number) => {
+    triggerHaptic('step');
+    setLiveSets((prev) => {
+      const exSets = [...(prev[exerciseId] || [])];
+      if (exSets[setIndex]) {
+        const currentVal = exSets[setIndex].weightKg ?? 0;
+        const newVal = Math.max(0, Math.round((currentVal + delta) * 10) / 10);
+        exSets[setIndex] = { ...exSets[setIndex], weightKg: newVal };
+      }
+      return { ...prev, [exerciseId]: exSets };
+    });
+  };
+
+  const stepReps = (exerciseId: string, setIndex: number, delta: number) => {
+    triggerHaptic('step');
+    setLiveSets((prev) => {
+      const exSets = [...(prev[exerciseId] || [])];
+      if (exSets[setIndex]) {
+        const currentVal = exSets[setIndex].reps ?? 0;
+        const newVal = Math.max(1, currentVal + delta);
+        exSets[setIndex] = { ...exSets[setIndex], reps: newVal };
+      }
+      return { ...prev, [exerciseId]: exSets };
+    });
+  };
+
   const addNewSet = (exerciseId: string) => {
+    triggerHaptic('medium');
     playAppleSound('tap');
     setLiveSets((prev) => {
       const exSets = [...(prev[exerciseId] || [])];
@@ -180,12 +218,26 @@ export function WorkoutView({
     });
   };
 
+  const removeSet = (exerciseId: string, setIndex: number) => {
+    triggerHaptic('light');
+    setLiveSets((prev) => {
+      const exSets = [...(prev[exerciseId] || [])];
+      if (exSets.length > 1) {
+        exSets.splice(setIndex, 1);
+        const renumbered = exSets.map((s, idx) => ({ ...s, setNumber: idx + 1 }));
+        return { ...prev, [exerciseId]: renumbered };
+      }
+      return prev;
+    });
+  };
+
   // Calculate completed stats
   const totalSets = Object.values(liveSets).reduce((acc, sets) => acc + sets.length, 0);
   const completedSets = Object.values(liveSets).reduce((acc, sets) => acc + sets.filter((s) => s.completed).length, 0);
   const progressPercent = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
 
   const handleFinishWorkout = () => {
+    triggerHaptic('success');
     playAppleSound('ring');
     try {
       confetti({
@@ -483,48 +535,101 @@ export function WorkoutView({
                   <motion.div
                     key={sIdx}
                     whileHover={{ scale: 1.005 }}
-                    className={`grid grid-cols-12 items-center px-3 py-2.5 rounded-2xl transition-all ${
+                    className={`grid grid-cols-12 items-center px-2 sm:px-3 py-2.5 rounded-2xl transition-all ${
                       set.completed
                         ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-200'
                         : 'bg-white/[0.03] border border-white/5 text-neutral-200'
                     }`}
                   >
-                    {/* Set Number */}
-                    <span className="col-span-2 font-bold text-xs">
-                      #{set.setNumber}
-                    </span>
+                    {/* Set Number & quick remove if > 1 */}
+                    <div className="col-span-2 flex items-center gap-1">
+                      <span className="font-bold text-xs text-white">
+                        #{set.setNumber}
+                      </span>
+                      {sets.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeSet(ex.id, sIdx)}
+                          className="w-4 h-4 rounded text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors cursor-pointer"
+                          title="Rimuovi serie"
+                          aria-label={`Rimuovi serie ${set.setNumber}`}
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      )}
+                    </div>
 
-                    {/* Weight Input */}
-                    <div className="col-span-4 flex items-center justify-center gap-1">
+                    {/* Weight Stepper with Tactile Haptic Buttons */}
+                    <div className="col-span-4 flex items-center justify-center gap-0.5 sm:gap-1">
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.82 }}
+                        onClick={() => stepWeight(ex.id, sIdx, -0.5)}
+                        className="w-6 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] active:bg-rose-500/25 active:border-rose-500/40 text-neutral-300 hover:text-white flex items-center justify-center border border-white/10 select-none touch-manipulation cursor-pointer shadow-sm transition-all"
+                        aria-label={`Diminuisci carico serie ${set.setNumber}`}
+                      >
+                        <Minus className="w-3 h-3" />
+                      </motion.button>
                       <input
                         type="number"
                         step="0.5"
                         value={set.weightKg}
-                        onChange={(e) => updateSetField(ex.id, sIdx, 'weightKg', parseFloat(e.target.value) || 0)}
-                        className="w-14 h-8 text-center bg-black/40 rounded-xl border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-rose-500 font-mono"
+                        onChange={(e) => {
+                          triggerHaptic('step');
+                          updateSetField(ex.id, sIdx, 'weightKg', parseFloat(e.target.value) || 0);
+                        }}
+                        className="w-12 h-7 text-center bg-black/50 rounded-lg border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-rose-500 font-mono"
                         aria-label={`Carico serie ${set.setNumber} per ${ex.name}`}
                       />
-                      <span className="text-[10px] text-neutral-400">kg</span>
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.82 }}
+                        onClick={() => stepWeight(ex.id, sIdx, 0.5)}
+                        className="w-6 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] active:bg-rose-500/25 active:border-rose-500/40 text-neutral-300 hover:text-white flex items-center justify-center border border-white/10 select-none touch-manipulation cursor-pointer shadow-sm transition-all"
+                        aria-label={`Aumenta carico serie ${set.setNumber}`}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </motion.button>
                     </div>
 
-                    {/* Reps Input */}
-                    <div className="col-span-4 flex items-center justify-center gap-1">
+                    {/* Reps Stepper with Tactile Haptic Buttons */}
+                    <div className="col-span-4 flex items-center justify-center gap-0.5 sm:gap-1">
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.82 }}
+                        onClick={() => stepReps(ex.id, sIdx, -1)}
+                        className="w-6 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] active:bg-rose-500/25 active:border-rose-500/40 text-neutral-300 hover:text-white flex items-center justify-center border border-white/10 select-none touch-manipulation cursor-pointer shadow-sm transition-all"
+                        aria-label={`Diminuisci ripetizioni serie ${set.setNumber}`}
+                      >
+                        <Minus className="w-3 h-3" />
+                      </motion.button>
                       <input
                         type="number"
                         value={set.reps}
-                        onChange={(e) => updateSetField(ex.id, sIdx, 'reps', parseInt(e.target.value) || 0)}
-                        className="w-14 h-8 text-center bg-black/40 rounded-xl border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-rose-500 font-mono"
+                        onChange={(e) => {
+                          triggerHaptic('step');
+                          updateSetField(ex.id, sIdx, 'reps', parseInt(e.target.value) || 0);
+                        }}
+                        className="w-10 h-7 text-center bg-black/50 rounded-lg border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-rose-500 font-mono"
                         aria-label={`Ripetizioni serie ${set.setNumber} per ${ex.name}`}
                       />
-                      <span className="text-[10px] text-neutral-400">rip</span>
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.82 }}
+                        onClick={() => stepReps(ex.id, sIdx, 1)}
+                        className="w-6 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] active:bg-rose-500/25 active:border-rose-500/40 text-neutral-300 hover:text-white flex items-center justify-center border border-white/10 select-none touch-manipulation cursor-pointer shadow-sm transition-all"
+                        aria-label={`Aumenta ripetizioni serie ${set.setNumber}`}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </motion.button>
                     </div>
 
                     {/* Completed Checkbox */}
                     <div className="col-span-2 flex justify-end">
                       <motion.button
-                        whileTap={{ scale: 0.85 }}
+                        whileTap={{ scale: 0.82 }}
                         onClick={() => toggleSetComplete(ex.id, sIdx, ex.restSeconds)}
-                        className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all ${
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                           set.completed
                             ? 'bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-500/30'
                             : 'bg-white/10 text-transparent hover:text-white/40 border border-white/10'
@@ -540,9 +645,9 @@ export function WorkoutView({
                 {/* Add Extra Set */}
                 <div className="flex justify-end pt-1">
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.92 }}
                     onClick={() => addNewSet(ex.id)}
-                    className="text-xs text-neutral-400 hover:text-rose-400 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+                    className="text-xs text-neutral-400 hover:text-rose-400 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/8 transition-all cursor-pointer font-medium"
                   >
                     <Plus className="w-3.5 h-3.5" /> Aggiungi serie
                   </motion.button>
